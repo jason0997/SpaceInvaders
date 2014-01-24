@@ -31,8 +31,8 @@
 	var enemy_x=1;
 	var enemy_y=10;
 	var enemy_velocity_x = 1;
-	var enemy_velocity_y = 5;
-	var enemy_speed_x= 1;
+	var enemy_velocity_y = 15;
+	var enemy_speed_x= 3;
 	var bullet_speed = 2;
 	
 	function init(){
@@ -40,7 +40,8 @@
 		ctx = $('#myCanvas')[0].getContext('2d');
 		WIDTH = document.getElementsByTagName('canvas')[0].width;
 		HEIGHT = document.getElementsByTagName('canvas')[0].height;	
-		return setInterval(move, 30);
+		var mainInterval = setInterval(move, 30);
+		return mainInterval;
 	}
    /* Initialize*/
     var enemy_row = 7;
@@ -174,6 +175,12 @@
 			enemy_velocity_x = enemy_speed_x;
 			enemy_y += enemy_velocity_y;
 		}
+		/* ----Player die-----*/
+		if( (enemy_y + get_down_side(enemy_matrix, enemy_row, enemy_col) * enemy_height + get_down_side(enemy_matrix, enemy_row, enemy_col) * enemy_padding  >= player_y)  && (enemy_x + (get_left_side(enemy_matrix, enemy_row, enemy_col)+1)*enemy_width + (get_left_side(enemy_matrix, enemy_row, enemy_col)+1)*enemy_padding <= player_x) && (enemy_x + get_right_side(enemy_matrix, enemy_row, enemy_col)*enemy_width + get_right_side(enemy_matrix, enemy_row, enemy_col)*enemy_padding >= player_x) ) {
+			clearInterval(mainInterval);
+			alert("Oops!You Dead");
+		}				
+		/* ----Player die-----*/
 		
 		enemy_x += enemy_velocity_x;
 	}
