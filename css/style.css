@@ -1,0 +1,12 @@
+/* CSS Document */
+
+body{
+	margin-top:100px;
+	padding:0px;
+	text-align:center;
+}
+#myCanvas{
+	width:850px;
+	height:580px;
+	background-color:#666666;
+}

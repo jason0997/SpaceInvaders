@@ -1,0 +1,6 @@
+//1. Moving player with bullets:
+	create player can be moved left or right, hit space to shoot	
+//2. Moving enemies
+	destroy
+3. Enemies with bullets
+4. Score, health
