@@ -40,6 +40,7 @@
 	var enemy_bullet_y;
 	var enemy_bullet_shot = false;
 	var enemy_bullet_speed = 1;
+	var health = 3;
 	function init(){
 	//	ctx = document.getElementById("myCanvas").getContext("2d");
 		ctx = $('#myCanvas')[0].getContext('2d');
@@ -97,8 +98,8 @@
 	
 	function draw_enemy_bullet(x,y){
 		ctx.beginPath();
-		ctx.rect(enemy_bullet_x,enemy_bullet_y,2,5); 
-		ctx.fillStyle='red';
+		ctx.rect(enemy_bullet_x,enemy_bullet_y,1,5); 
+		ctx.fillStyle='green';
 		ctx.closePath();
   		ctx.fill();
 	}
@@ -164,6 +165,14 @@
 			draw_enemy_bullet(enemy_bullet_x, enemy_bullet_y);
 		}
 		
+		if(enemy_bullet_x <= player_x +  player_width && enemy_bullet_x >= player_x && enemy_bullet_y >= player_y){
+			health -= 1;
+			clear();
+			enemy_bullet_x = WIDTH +9999; 
+			player_x = WIDTH/2-10;
+			player_y = HEIGHT - 10;			
+		}
+		
 		if(shootDown && can_shoot){
 			player_bullet(player_x,player_y,ctx);		
 			can_shoot=false;
@@ -216,19 +225,6 @@
 			enemy_velocity_x = enemy_speed_x;
 			enemy_y += enemy_velocity_y;
 		}
-		/* ----Player die-----*/ 
-		var down_side = get_down_side(enemy_matrix, enemy_row, enemy_col);
-		var left = get_down_side_left(enemy_matrix, enemy_row, down_side);
-		var right = get_down_side_right(enemy_matrix, enemy_row, down_side);
-		var down_right = enemy_x + (right - 1) * enemy_padding + right * enemy_width; 
-		var down_left = enemy_x + (left - 1) * (enemy_padding + enemy_width)
-		var down_height = enemy_y + down_side * enemy_height + down_side * enemy_padding;
-		if(down_height >= player_y && (down_left <= player_x && down_right >= player_x)){
-			alert("Oops!You Dead");
-
-			clearInterval(mainInterval);
-		}				
-		/* ----Player die-----*/
 		
 		/* ----Score and health --- */
 		sctx.clearRect(0,0,850,HEIGHT);
@@ -238,8 +234,28 @@
 
 		sctx.font="30px Arial";	
 	    sctx.textAlign = "center";
-		sctx.fillText("health: " + score, 700,35,250);
+		sctx.fillText("health: " + health, 700,35,250);
 		/* ----Socre and health --- */
+		/* ----Player die-----*/ 
+		var down_side = get_down_side(enemy_matrix, enemy_row, enemy_col);
+		var left = get_down_side_left(enemy_matrix, enemy_row, down_side);
+		var right = get_down_side_right(enemy_matrix, enemy_row, down_side);
+		var down_right = enemy_x + (right - 1) * enemy_padding + right * enemy_width; 
+		var down_left = enemy_x + (left - 1) * (enemy_padding + enemy_width)
+		var down_height = enemy_y + down_side * enemy_height + down_side * enemy_padding;
+		if(down_height >= player_y && (down_left <= player_x && down_right >= player_x)){
+			alert("Oops!You Dead");
+			alert("YOU FINAL SCORE IS: " + score);
+			location.reload();
+		}				
+		
+		if(health <=0){
+			alert("Oops!You Dead");
+			alert("YOU FINAL SCORE IS: " + score);
+			location.reload();
+		}
+		
+		/* ----Player die-----*/
 		
 		enemy_x += enemy_velocity_x;
 		document.getElementById("b_x").value=0;
