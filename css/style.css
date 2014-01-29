@@ -1,7 +1,7 @@
 /* CSS Document */
 
 body{
-	margin-top:50px;
+	margin-top:70px;
 	padding:0px;
 	text-align:center;
 }
@@ -12,7 +12,7 @@ body{
 }
 
 #socre_health_Canvas{
-	top:50px;
+	top:20px;
 	position:absolute;
 	margin-left:-850px;
 	background-color:red;
