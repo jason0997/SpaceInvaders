@@ -8,12 +8,14 @@
 </head>
 <body>
 
-<canvas id="myCanvas" style="background:#000000"></canvas>
+<canvas id="myCanvas"></canvas>
 <canvas id="socre_health_Canvas" width="850" height="50"></canvas>
+<canvas id="background_Canvas"></canvas>
 <script>
    /* Initialize*/	
 	var ctx = document.getElementById("myCanvas").getContext("2d");
 	var sctx = document.getElementById("socre_health_Canvas").getContext("2d");
+	var bctx = document.getElementById("background_Canvas").getContext("2d");
 	var WIDTH = document.getElementsByTagName('canvas')[0].width;
 	var HEIGHT = document.getElementsByTagName('canvas')[0].height;
 	var rightDown = false;
@@ -22,7 +24,7 @@
 	var player_y = 0;  
 	var player_width=16;
 	var player_height=10;
-	var player_speed=2;
+	var player_speed=1;
 	var shootDown = false;
 	var can_shoot=true;
 	var bullet=null;
@@ -43,6 +45,7 @@
 	var health = 3;
 	var mainInterval;
 	var enemyBulletInterval;
+	var backgroundInterval;
 	var hit_x;
 	var hit_y;
 	
@@ -55,13 +58,14 @@
 		ctx = $('#myCanvas')[0].getContext('2d');
 		WIDTH = document.getElementsByTagName('canvas')[0].width;
 		HEIGHT = document.getElementsByTagName('canvas')[0].height;	
+		backgroundInterval = setInterval(background, 10);
 		mainInterval = setInterval(move, 10);
 		enemyBulletInterval=setInterval(enemy_bullet_main, 1500);
 		setInterval(function(){up=!up},500);
 	}
    /* Initialize*/
-    var enemy_col = 3;
-	var enemy_row = 2;
+    var enemy_col = 5;
+	var enemy_row = 6;
 	var enemy_width=16;
 	var enemy_height=16;
 	var enemy_padding=1;
@@ -84,24 +88,28 @@
 				y:y+enemy_y
 			};
 		};
-
-/*
+			
 		if(hit_x == x && hit_y == y && hit){
-			enemyImg.src="images/player.png";
-			ctx.drawImage(enemyImg, hit_x, y, 16,16);
+			enemyImg.src="images/exp2.png";		
+			clearInterval(mainInterval);
+			clearInterval(enemyBulletInterval);
+			setTimeout(function(){	
+					mainInterval = setInterval(move, 10);
+					enemyBulletInterval=setInterval(enemy_bullet_main, 1500);
+			}, 10);		
+			ctx.drawImage(enemyImg, hit_x + enemy_x, y + enemy_y, 16,16);		
 			hit = false;
+		}else{
+			if(up)
+			enemyImg.src = "images/enemy_up.png";
+			else
+			enemyImg.src = "images/enemy_down.png";
+			var enemySrc = {
+				img:enemyImg,
+				x:x+enemy_x,
+				y:y+enemy_y
+			}
 		}
-*/
-		if(up)
-		enemyImg.src = "images/enemy_up.png";
-		else
-		enemyImg.src = "images/enemy_down.png";
-		var enemySrc = {
-			img:enemyImg,
-			x:x+enemy_x,
-			y:y+enemy_y
-		}
-		
 		return enemySrc;
 	}
 	
@@ -191,8 +199,6 @@
 		   
 	function move() {
 		clear();
-        update();
-        draw();
 				
 		if(enemy_bullet_shot){
 			enemy_bullet_y += enemy_bullet_speed;
@@ -241,19 +247,20 @@
 					enemy_array.push(enemy_move((i*(enemy_width + enemy_padding)), (j*(enemy_height)), enemy_width, enemy_height));
 					empty = false;
 				}
-				/*
 				else{
-					enemy_move((i*(enemy_width + enemy_padding)), (j*(enemy_height)+1), enemy_width, enemy_height);
-					show_x = i*(enemy_width + enemy_padding);
-					show_y = j*(enemy_height)+1;
+					enemy_move((i*(enemy_width + enemy_padding)), (j*(enemy_height)), enemy_width, enemy_height);
+					show_x = i*(enemy_width + enemy_padding);						
+					show_y = j*(enemy_height);
 				}
-				*/
 				if(enemy_col-1 == i && enemy_row-1 == j && enemy_matrix[i][j] == 0 && empty){
-					enemy_x =0;
+					enemy_x = 0;
 					if(enemy_y >10)
-						enemy_y -= 10;
-					else
-						enemy_y = 10;
+						enemy_y -= 30;
+					else if(enemy_y == 10)
+						enemy_y = -5;
+					else if(enemy_y + (get_down_side(enemy_matrix, enemy_col, enemy_row) - 1)* (enemy_height + enemy_padding)+ enemy_height >= HEIGHT - player_height){
+						enemy_y -= 30 
+					}
 					init_enemy();
 				}
 			}
@@ -276,7 +283,7 @@
 		if(index_y >= 0 && index_x >= 0 && index_y < enemy_row && index_x <enemy_col){
 		  	if(enemy_matrix[index_x][index_y] == 1){
 				hit_x = (index_x*(enemy_width + enemy_padding));
-				hit_y = (index_y*(enemy_height + enemy_padding));
+				hit_y = (index_y*(enemy_height));
 				enemy_matrix[index_x][index_y]=0;
 				player_bullet_y = -10;
 				score += 10;
@@ -321,8 +328,8 @@
 		var left = get_down_side_left(enemy_matrix, enemy_col, down_side);
 		var right = get_down_side_right(enemy_matrix, enemy_col, down_side);
 		var down_right = enemy_x + (right - 1) * enemy_padding + right * enemy_width; 
-		var down_left = enemy_x + (left - 1) * (enemy_padding + enemy_width)
-		var down_height = enemy_y + down_side * enemy_height + down_side * enemy_padding;
+		var down_left = enemy_x + (left - 1) * (enemy_width)
+		var down_height = enemy_y + down_side * enemy_height ;
 		if(down_height >= player_y && (down_left <= player_x && down_right >= player_x)){
 			alert("YOU FINAL SCORE IS: " + score);
 			location.reload();
@@ -336,7 +343,7 @@
 		/* ----Player die-----*/
 		
 		enemy_x += enemy_velocity_x;
-		document.getElementById("b_x").value=show_x;
+		document.getElementById("b_x").value=enemy_y;
 		document.getElementById("b_y").value=show_y;
 		document.getElementById("e_x").value=hit_x;
 		document.getElementById("e_y").value=hit_y;
@@ -344,7 +351,10 @@
 	}
 
 	/* ----- Backgound ---- */
-
+	function background(){
+		update();
+		draw();
+	}
 
 
     // do stuff here
@@ -360,10 +370,10 @@
     };
 
     function draw(){
-    	ctx.clearRect(0, 0, WIDTH, HEIGHT);
+    	bctx.clearRect(0, 0, WIDTH, HEIGHT);
 
-        ctx.fillStyle = "black";
-        ctx.fillRect(0,0,WIDTH,HEIGHT);
+        bctx.fillStyle = "black";
+        bctx.fillRect(0,0,WIDTH,HEIGHT);
     	stars.forEach(function(star){
     		star.draw();
     	});
@@ -386,8 +396,8 @@
         S.height = Math.random() * 1.2;
 
         S.draw = function(){
-        	ctx.fillStyle = this.color;
-        	ctx.fillRect(this.x, this.y, this.width, this.height);
+        	bctx.fillStyle = this.color;
+        	bctx.fillRect(this.x, this.y, this.width, this.height);
         };
 
         S.update = function(){

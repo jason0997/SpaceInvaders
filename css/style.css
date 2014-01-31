@@ -8,6 +8,8 @@ body{
 #myCanvas{
 	width:850px;
 	height:580px;
+	z-index:1;
+	background-color:rgba(0,0,0,0.1);
 }
 
 #socre_health_Canvas{
@@ -17,3 +19,12 @@ body{
 	background-color:red;
 }
 
+#background_Canvas{
+	width:850px;
+	height:580px;
+	position:absolute;
+	top:70px;
+	margin-left:-850px;
+	background-color:#000000;
+	z-index:-1;
+}
