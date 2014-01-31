@@ -6,3 +6,5 @@
 //4. Score, health
 
 
+5. images for enemies, gif for crash
+//6. Player get hit, stop and play gif, then go on

@@ -44,3 +44,35 @@ function get_down_side_left(matrix, row, down){
 		}
 	}
 }
+
+function player_explosion(x, y, context){
+		expImg = new Image();
+		expImg.onload = function() {
+			var expObj ={
+				x:x,
+				y:y
+			};
+		};
+	
+		expImg.src = "images/exp.png";
+		var i=0;
+		var j=0;
+		var interval = setInterval(function(){
+			//alert("i: "+ i+"j:"+j);
+			ctx.clearRect(x-2,y-10,20,20);
+			ctx.drawImage(expImg,i, j,64,64,x, y-5, 18,18);
+			if(i<256){
+			   i+=64;
+			}else{
+			   i=0;
+			   j+=64;
+			}
+		if(j == 256){
+			ctx.clearRect(x-2,y-10,20,20);
+			clearInterval(interval);
+		}
+
+		},100);
+		
+}
+
