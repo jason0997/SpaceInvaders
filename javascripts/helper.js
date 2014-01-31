@@ -58,7 +58,6 @@ function player_explosion(x, y, context){
 		var i=0;
 		var j=0;
 		var interval = setInterval(function(){
-			//alert("i: "+ i+"j:"+j);
 			ctx.clearRect(x-2,y-10,20,20);
 			ctx.drawImage(expImg,i, j,64,64,x, y-5, 18,18);
 			if(i<256){

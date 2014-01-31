@@ -254,12 +254,13 @@
 				}
 				if(enemy_col-1 == i && enemy_row-1 == j && enemy_matrix[i][j] == 0 && empty){
 					enemy_x = 0;
-					if(enemy_y >10)
-						enemy_y -= 30;
-					else if(enemy_y == 10)
-						enemy_y = -5;
-					else if(enemy_y + (get_down_side(enemy_matrix, enemy_col, enemy_row) - 1)* (enemy_height + enemy_padding)+ enemy_height >= HEIGHT - player_height){
-						enemy_y -= 30 
+					if(enemy_y + (enemy_row + 1) * (enemy_height + enemy_padding) >= HEIGHT - player_height){
+						enemy_y = HEIGHT - (enemy_height + enemy_padding) * (enemy_row + 1) -16;
+					}else{
+						if(enemy_y >10)
+							enemy_y -= 30;
+						else if(enemy_y == 10)
+							enemy_y = -5;
 					}
 					init_enemy();
 				}
