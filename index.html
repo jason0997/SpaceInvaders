@@ -64,8 +64,8 @@
 		setInterval(function(){up=!up},500);
 	}
    /* Initialize*/
-    var enemy_col = 5;
-	var enemy_row = 6;
+    var enemy_col = 7;
+	var enemy_row = 4;
 	var enemy_width=16;
 	var enemy_height=16;
 	var enemy_padding=1;
@@ -317,9 +317,11 @@
 		sctx.clearRect(0,0,850,HEIGHT);
 		sctx.font="30px Arial";	
 	    sctx.textAlign = "center";
+		sctx.fillStyle="lightgreen";
 		sctx.fillText("score: " + score, 100,35,250);
-
+		
 		sctx.font="30px Arial";	
+		sctx.fillStyle="lightgreen";
 	    sctx.textAlign = "center";
 		sctx.fillText("lives: " + health, 700,35,250);
 		/* ----Socre and health --- */
@@ -331,7 +333,7 @@
 		var down_right = enemy_x + (right - 1) * enemy_padding + right * enemy_width; 
 		var down_left = enemy_x + (left - 1) * (enemy_width)
 		var down_height = enemy_y + down_side * enemy_height ;
-		if(down_height >= player_y && (down_left <= player_x && down_right >= player_x)){
+		if(down_height > player_y && (down_left < player_x && down_right > player_x)){
 			alert("YOU FINAL SCORE IS: " + score);
 			location.reload();
 		}				
@@ -344,7 +346,7 @@
 		/* ----Player die-----*/
 		
 		enemy_x += enemy_velocity_x;
-		document.getElementById("b_x").value=enemy_y;
+		document.getElementById("b_x").value=show_x;
 		document.getElementById("b_y").value=show_y;
 		document.getElementById("e_x").value=hit_x;
 		document.getElementById("e_y").value=hit_y;
