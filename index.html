@@ -13,6 +13,7 @@
 <canvas id="background_Canvas"></canvas>
 <script>
    /* Initialize*/	
+    var level = 1.5;
 	var ctx = document.getElementById("myCanvas").getContext("2d");
 	var sctx = document.getElementById("socre_health_Canvas").getContext("2d");
 	var bctx = document.getElementById("background_Canvas").getContext("2d");
@@ -33,24 +34,21 @@
 	var player_bullet_y=player_y-2;
 	var enemy_x=1;
 	var enemy_y=10;
-	var enemy_velocity_x = 0.4;
+	var enemy_velocity_x = 0.4 * level;
 	var enemy_velocity_y = 15;
-	var enemy_speed_x= 0.4;
+	var enemy_speed_x= 0.4 * level;
 	var bullet_speed = 2;
 	var score = 0;
 	var enemy_bullet_x;
 	var enemy_bullet_y;
 	var enemy_bullet_shot = false;
-	var enemy_bullet_speed = 1;
+	var enemy_bullet_speed = 1 * level;
 	var health = 3;
 	var mainInterval;
 	var enemyBulletInterval;
 	var backgroundInterval;
 	var hit_x;
-	var hit_y;
-	
-	var show_x; 
-	var show_y;
+	var hit_y;	
 	var hit = false;
 	
 	function init(){
@@ -249,13 +247,11 @@
 				}
 				else{
 					enemy_move((i*(enemy_width + enemy_padding)), (j*(enemy_height)), enemy_width, enemy_height);
-					show_x = i*(enemy_width + enemy_padding);						
-					show_y = j*(enemy_height);
 				}
 				if(enemy_col-1 == i && enemy_row-1 == j && enemy_matrix[i][j] == 0 && empty){
 					enemy_x = 0;
 					if(enemy_y + (enemy_row + 1) * (enemy_height + enemy_padding) >= HEIGHT - player_height){
-						enemy_y = HEIGHT - (enemy_height + enemy_padding) * (enemy_row + 1) -16;
+						enemy_y = HEIGHT - (enemy_height + enemy_padding) * (enemy_row + 1) -26;
 					}else{
 						if(enemy_y >10)
 							enemy_y -= 30;
@@ -346,10 +342,6 @@
 		/* ----Player die-----*/
 		
 		enemy_x += enemy_velocity_x;
-		document.getElementById("b_x").value=show_x;
-		document.getElementById("b_y").value=show_y;
-		document.getElementById("e_x").value=hit_x;
-		document.getElementById("e_y").value=hit_y;
 		
 	}
 
@@ -414,12 +406,8 @@
 	init_enemy();
 	init();
 	init_player();
-	
-
-		
+			
 </script>
-<p>bullet</p> <input id="b_x" type="text"> </input><input id="b_y" type="text"> </input><br />
-<p>enemy</p> <input id="e_x" type="text"> </input><input id="e_y" type="text"> </input><br />
 
 </body>
 </html>
