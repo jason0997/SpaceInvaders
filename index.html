@@ -11,41 +11,56 @@
 <canvas id="myCanvas"></canvas>
 <canvas id="socre_health_Canvas" width="850" height="50"></canvas>
 <canvas id="background_Canvas"></canvas>
+<canvas id="menu_Canvas"></canvas>
 <script>
    /* Initialize*/	
 	var ctx = document.getElementById("myCanvas").getContext("2d");
 	var sctx = document.getElementById("socre_health_Canvas").getContext("2d");
 	var bctx = document.getElementById("background_Canvas").getContext("2d");
+	var canvas = document.getElementById("menu_Canvas");
+	var mctx = canvas.getContext("2d");
 	var WIDTH = document.getElementsByTagName('canvas')[0].width;
 	var HEIGHT = document.getElementsByTagName('canvas')[0].height;
+	
 	var rightDown = false;
 	var leftDown = false;
+	
 	var player_x =0;
 	var player_y = 0;  
 	var player_width=16;
 	var player_height=10;
 	var player_speed=1;
+	
 	var shootDown = false;
+	
 	var can_shoot=true;
 	var bullet=null;
 	var playerImg=null;
 	var player_bullet_x=player_x+8;
 	var player_bullet_y=player_y-2;
+	
 	var enemy_x=1;
 	var enemy_y=10;
 	var enemy_velocity_x = 0.4;
 	var enemy_velocity_y = 15;
 	var enemy_speed_x= 0.4;
+	
 	var bullet_speed = 2;
+	
 	var score = 0;
+	
 	var enemy_bullet_x;
 	var enemy_bullet_y;
 	var enemy_bullet_shot = false;
 	var enemy_bullet_speed = 1;
+	
 	var health = 3;
+	
 	var mainInterval;
 	var enemyBulletInterval;
 	var backgroundInterval;
+	var menuInterval;
+	
 	var hit_x;
 	var hit_y;
 	
@@ -53,17 +68,26 @@
 	var show_y;
 	var hit = false;
 	
+	var game_trg;
+	var game_over;
+
+	var lv1;
+	var lv2;
+	var lv3;
+
 	function init(){
 	//	ctx = document.getElementById("myCanvas").getContext("2d");
 		ctx = $('#myCanvas')[0].getContext('2d');
 		WIDTH = document.getElementsByTagName('canvas')[0].width;
 		HEIGHT = document.getElementsByTagName('canvas')[0].height;	
-		backgroundInterval = setInterval(background, 10);
 		mainInterval = setInterval(move, 10);
+		backgroundInterval = setInterval(background, 30);
+		menuInterval = setInterval(menu,30);
 		enemyBulletInterval=setInterval(enemy_bullet_main, 1500);
 		setInterval(function(){up=!up},500);
 	}
-   /* Initialize*/
+ 	
+ 	/* Initialize*/
     var enemy_col = 5;
 	var enemy_row = 6;
 	var enemy_width=16;
@@ -71,6 +95,8 @@
 	var enemy_padding=1;
 	var enemy_matrix;
 	var up = true;
+
+	//create row by column matrix of set of enemies
    	function init_enemy(){
 		enemy_matrix = new Array(enemy_col);
 		for(i=0; i < enemy_col; i++){
@@ -80,7 +106,8 @@
 			}
 		}
 	}
-	function enemy_move(x,y, up_down){
+
+	function enemy_move(x, y, up_down){
 		var enemyImg = new Image();
 		enemyImg.onload = function() {
 			var enemyObj ={
@@ -114,24 +141,30 @@
 	}
 	
 	function enemy_bullet_main(){
-		var col_range = get_right_side(enemy_matrix, enemy_col, enemy_row) - get_left_side(enemy_matrix, enemy_col, enemy_row) + 1;
-		var col_num = Math.floor(Math.random()* col_range) + get_left_side(enemy_matrix, enemy_col, enemy_row) - 1;
+		//run this if and only if the game trigger has been set to true and game is not over
+		if (game_trg && !game_over){
+			var col_range = get_right_side(enemy_matrix, enemy_col, enemy_row) - get_left_side(enemy_matrix, enemy_col, enemy_row) + 1;
+			var col_num = Math.floor(Math.random()* col_range) + get_left_side(enemy_matrix, enemy_col, enemy_row) - 1;
 	
-		//Find the down side of that num
-		for(row_num = enemy_row - 1; row_num >=0; row_num--){
-			if(enemy_matrix[col_num][row_num] == 1){
-				break; 
+			//Find the down side of that num
+			for(row_num = enemy_row - 1; row_num >=0; row_num--){
+				if(enemy_matrix[col_num][row_num] == 1){
+					break; 
+				}
+			}		
+			if(col_num <0 || row_num <0){
+				enemy_bullet_main();
 			}
-		}		
-		if(col_num <0 || row_num <0){
-			enemy_bullet_main();
-		}
-		else{
-			//Create a bullet at that position
-			enemy_bullet_x = col_num * enemy_width + (col_num - 1) * enemy_padding + enemy_x + enemy_width / 2;
-			enemy_bullet_y = (row_num + 1) * enemy_height + row_num * enemy_padding + enemy_y - 10;
-			draw_enemy_bullet(enemy_bullet_x, enemy_bullet_y);		
-			enemy_bullet_shot = true;
+			else{
+				//Create a bullet at that position
+				enemy_bullet_x = col_num * enemy_width + (col_num - 1) * enemy_padding + enemy_x + enemy_width / 2;
+				enemy_bullet_y = (row_num + 1) * enemy_height + row_num * enemy_padding + enemy_y - 10;
+				draw_enemy_bullet(enemy_bullet_x, enemy_bullet_y);		
+				enemy_bullet_shot = true;
+			}
+
+		}else{
+
 		}
 
 	}
@@ -198,158 +231,174 @@
 	}
 		   
 	function move() {
-		clear();
-				
-		if(enemy_bullet_shot){
-			enemy_bullet_y += enemy_bullet_speed;
-			draw_enemy_bullet(enemy_bullet_x, enemy_bullet_y);
-		}
-		
-		//Player get hit by bullet...
-		if(enemy_bullet_x <= player_x +  player_width && enemy_bullet_x >= player_x && enemy_bullet_y >= player_y && enemy_bullet_y <= HEIGHT){
-			health -= 1;
-			enemy_bullet_y = HEIGHT + 9999; 
-			
-			if(health>0){
-				clearInterval(mainInterval);
-				clearInterval(enemyBulletInterval);
-				setTimeout(function(){
-						player_x = WIDTH/2-10;
-						player_y = HEIGHT - 10;		
-						mainInterval = setInterval(move, 10);
-						enemyBulletInterval=setInterval(enemy_bullet_main, 1500);
-						clear();
-				}, 3000);
-				
+		//run this if and only if the game trigger has been set to true and game is not over
+		if (game_trg && !game_over){
+			clear();
+
+			if(enemy_bullet_shot){
+				enemy_bullet_y += enemy_bullet_speed;
+				draw_enemy_bullet(enemy_bullet_x, enemy_bullet_y);
 			}
-			player_explosion(player_x, player_y, ctx);
+		
+			//Player get hit by bullet...
+			if(enemy_bullet_x <= player_x +  player_width && enemy_bullet_x >= player_x && enemy_bullet_y >= player_y && enemy_bullet_y <= HEIGHT){
+				health -= 1;
+				enemy_bullet_y = HEIGHT + 9999; 
 			
-			player_x = WIDTH + 99999;
-			player_y = HEIGHT + 99999;
-		}
-		
-		if(shootDown && can_shoot){
-			player_bullet(player_x,player_y,ctx);		
-			can_shoot=false;
-		}
-		
-		if(!can_shoot){
-			player_bullet_y-=bullet_speed;
-			player_bullet_move(player_bullet_x,player_bullet_y);				
-		}		
-		
-		/*---Enemy---*/
-		var empty = true;
-		var enemy_array = new Array();
-		for(i=0;i<enemy_col;i++){
-			for(j=0;j<enemy_row;j++){
-				if(enemy_matrix[i][j]==1){
-					enemy_array.push(enemy_move((i*(enemy_width + enemy_padding)), (j*(enemy_height)), enemy_width, enemy_height));
-					empty = false;
+				if(health>0){
+					clearInterval(mainInterval);
+					clearInterval(enemyBulletInterval);
+					setTimeout(function(){
+							player_x = WIDTH/2-10;
+							player_y = HEIGHT - 10;		
+							mainInterval = setInterval(move, 10);
+							enemyBulletInterval=setInterval(enemy_bullet_main, 1500);
+							clear();
+					}, 3000);
+				
 				}
-				else{
-					enemy_move((i*(enemy_width + enemy_padding)), (j*(enemy_height)), enemy_width, enemy_height);
-					show_x = i*(enemy_width + enemy_padding);						
-					show_y = j*(enemy_height);
-				}
-				if(enemy_col-1 == i && enemy_row-1 == j && enemy_matrix[i][j] == 0 && empty){
-					enemy_x = 0;
-					if(enemy_y + (enemy_row + 1) * (enemy_height + enemy_padding) >= HEIGHT - player_height){
-						enemy_y = HEIGHT - (enemy_height + enemy_padding) * (enemy_row + 1) -16;
-					}else{
-						if(enemy_y >10)
-							enemy_y -= 30;
-						else if(enemy_y == 10)
-							enemy_y = -5;
+				player_explosion(player_x, player_y, ctx);
+			
+				player_x = WIDTH + 99999;
+				player_y = HEIGHT + 99999;
+			}
+		
+			if(shootDown && can_shoot){
+				player_bullet(player_x,player_y,ctx);		
+				can_shoot=false;
+			}
+		
+			if(!can_shoot){
+				player_bullet_y-=bullet_speed;
+				player_bullet_move(player_bullet_x,player_bullet_y);				
+			}		
+		
+			/*---Enemy---*/
+			var empty = true;
+			var enemy_array = new Array();
+			for(i=0;i<enemy_col;i++){
+				for(j=0;j<enemy_row;j++){
+					if(enemy_matrix[i][j]==1){
+						enemy_array.push(enemy_move((i*(enemy_width + enemy_padding)), (j*(	enemy_height)), enemy_width, enemy_height));
+						empty = false;
 					}
-					init_enemy();
+					else{
+						enemy_move((i*(enemy_width + enemy_padding)), (j*(enemy_height)), enemy_width, enemy_height);
+						show_x = i*(enemy_width + enemy_padding);						
+						show_y = j*(enemy_height);
+					}
+					if(enemy_col-1 == i && enemy_row-1 == j && enemy_matrix[i][j] == 0 && empty){
+						enemy_x = 0;
+						if(enemy_y + (enemy_row + 1) * (enemy_height + enemy_padding) >= HEIGHT - player_height){
+							enemy_y = HEIGHT - (enemy_height + enemy_padding) * (enemy_row + 1) -16;
+						}else{
+							if(enemy_y >10)
+								enemy_y -= 30;
+							else if(enemy_y == 10)
+								enemy_y = -5;
+						}
+						init_enemy();
+					}
 				}
 			}
-		}
 		
-		/* ---Draw enemy here ----*/
-		for(k=0;k<enemy_array.length;k++){
-			ctx.drawImage(enemy_array[k].img,enemy_array[k].x, enemy_array[k].y, enemy_width,enemy_height);			
-		}
-		/* ---Draw enemy here ----*/		
-		/*----Hit an enemy ---*/
-		var rowheight = enemy_height + enemy_padding;
-		var colwidth = enemy_width + enemy_padding;
-		var p_y = player_bullet_y - enemy_y;
-		var p_x = player_bullet_x - enemy_x;
-		var index_y = Math.floor(p_y/rowheight);
-		var index_x = Math.floor(p_x/colwidth);
+			/* ---Draw enemy here ----*/
+			for(k=0;k<enemy_array.length;k++){
+				ctx.drawImage(enemy_array[k].img,enemy_array[k].x, enemy_array[k].y, enemy_width,enemy_height);			
+			}
+			/* ---Draw enemy here ----*/		
+			/*----Hit an enemy ---*/
+			var rowheight = enemy_height + enemy_padding;
+			var colwidth = enemy_width + enemy_padding;
+			var p_y = player_bullet_y - enemy_y;
+			var p_x = player_bullet_x - enemy_x;
+			var index_y = Math.floor(p_y/rowheight);
+			var index_x = Math.floor(p_x/colwidth);
 
 		
-		if(index_y >= 0 && index_x >= 0 && index_y < enemy_row && index_x <enemy_col){
-		  	if(enemy_matrix[index_x][index_y] == 1){
-				hit_x = (index_x*(enemy_width + enemy_padding));
-				hit_y = (index_y*(enemy_height));
-				enemy_matrix[index_x][index_y]=0;
-				player_bullet_y = -10;
-				score += 10;
-				hit = true;
+			if(index_y >= 0 && index_x >= 0 && index_y < enemy_row && index_x <enemy_col){
+		  		if(enemy_matrix[index_x][index_y] == 1){
+					hit_x = (index_x*(enemy_width + enemy_padding));
+					hit_y = (index_y*(enemy_height));
+					enemy_matrix[index_x][index_y]=0;
+					player_bullet_y = -10;
+					score += 10;
+					hit = true;
+				}
+			}
+			/*---Enemy---*/
+
+			if(rightDown && player_x<WIDTH-16){	
+				player_x+=player_speed;	
+			}
+			if(leftDown && player_x>0){
+				player_x-=player_speed;
+			}
+			player_move(player_x,player_y);		
+
+			if(player_bullet_y<0){
+				can_shoot=true;
+			}	
+			if(enemy_x + get_right_side(enemy_matrix, enemy_col, enemy_row) * (enemy_width + enemy_padding) >= WIDTH){
+				enemy_velocity_x = -enemy_speed_x;
+				enemy_y += enemy_velocity_y;
+			}
+			if(enemy_x + (get_left_side(enemy_matrix, enemy_col, enemy_row) - 1)*(enemy_width + enemy_padding) <= 0){
+				enemy_velocity_x = enemy_speed_x;
+				enemy_y += enemy_velocity_y;
+			}
+		
+			/* ----Score and health --- */
+			sctx.clearRect(0,0,850,HEIGHT);
+			sctx.fillStyle = "white"
+			sctx.font="20px Arial";	
+	    	sctx.textAlign = "center";
+			sctx.fillText("score: " + score, 100,50,250);
+			sctx.fillText("lives: " + health, 700,50,250);
+			/* ----Socre and health --- */
+		
+			/* ----Player die-----*/ 
+			var down_side = get_down_side(enemy_matrix, enemy_col, enemy_row);
+			var left = get_down_side_left(enemy_matrix, enemy_col, down_side);
+			var right = get_down_side_right(enemy_matrix, enemy_col, down_side);
+			var down_right = enemy_x + (right - 1) * enemy_padding + right * enemy_width; 
+			var down_left = enemy_x + (left - 1) * (enemy_width)
+			var down_height = enemy_y + down_side * enemy_height ;
+		
+			if(down_height >= player_y && (down_left <= player_x && down_right >= player_x)){
+				//alert("YOU FINAL SCORE IS: " + score);
+				//location.reload();
+				game_over = true
+			}else if(health <=0){
+				game_over = true
+			}				
+		
+			/*
+			if(health <=0){
+				alert("YOU FINAL SCORE IS: " + score);
+				location.reload();
+			}
+			*/
+		
+			/* ----Player die-----*/
+		
+			enemy_x += enemy_velocity_x;
+			document.getElementById("b_x").value=enemy_y;
+			document.getElementById("b_y").value=show_y;
+			document.getElementById("e_x").value=hit_x;
+			document.getElementById("e_y").value=hit_y;
+			}else if (game_over){
+				clear();
+				ctx.font = '10pt Calibri';
+      			ctx.textAlign = 'center';
+      			ctx.fillStyle = 'white';
+     	 		ctx.fillText("Game Over!", WIDTH/2, HEIGHT/2 - 10)
+    	  		ctx.fillText("Your Final Score: " + score, WIDTH/2, HEIGHT/2 + 20)
+
+			}else{
+
 			}
 		}
-		/*---Enemy---*/
-
-		if(rightDown && player_x<WIDTH-16){	
-			player_x+=player_speed;	
-		}
-		if(leftDown && player_x>0){
-			player_x-=player_speed;
-		}
-		player_move(player_x,player_y);		
-
-		if(player_bullet_y<0){
-			can_shoot=true;
-		}	
-		if(enemy_x + get_right_side(enemy_matrix, enemy_col, enemy_row) * (enemy_width + enemy_padding) >= WIDTH){
-			enemy_velocity_x = -enemy_speed_x;
-			enemy_y += enemy_velocity_y;
-		}
-		if(enemy_x + (get_left_side(enemy_matrix, enemy_col, enemy_row) - 1)*(enemy_width + enemy_padding) <= 0){
-			enemy_velocity_x = enemy_speed_x;
-			enemy_y += enemy_velocity_y;
-		}
-		
-		/* ----Score and health --- */
-		sctx.clearRect(0,0,850,HEIGHT);
-		sctx.font="30px Arial";	
-	    sctx.textAlign = "center";
-		sctx.fillText("score: " + score, 100,35,250);
-
-		sctx.font="30px Arial";	
-	    sctx.textAlign = "center";
-		sctx.fillText("lives: " + health, 700,35,250);
-		/* ----Socre and health --- */
-		
-		/* ----Player die-----*/ 
-		var down_side = get_down_side(enemy_matrix, enemy_col, enemy_row);
-		var left = get_down_side_left(enemy_matrix, enemy_col, down_side);
-		var right = get_down_side_right(enemy_matrix, enemy_col, down_side);
-		var down_right = enemy_x + (right - 1) * enemy_padding + right * enemy_width; 
-		var down_left = enemy_x + (left - 1) * (enemy_width)
-		var down_height = enemy_y + down_side * enemy_height ;
-		if(down_height >= player_y && (down_left <= player_x && down_right >= player_x)){
-			alert("YOU FINAL SCORE IS: " + score);
-			location.reload();
-		}				
-		
-		if(health <=0){
-			alert("YOU FINAL SCORE IS: " + score);
-			location.reload();
-		}
-		
-		/* ----Player die-----*/
-		
-		enemy_x += enemy_velocity_x;
-		document.getElementById("b_x").value=enemy_y;
-		document.getElementById("b_y").value=show_y;
-		document.getElementById("e_x").value=hit_x;
-		document.getElementById("e_y").value=hit_y;
-		
-	}
 
 	/* ----- Backgound ---- */
 	function background(){
@@ -409,12 +458,185 @@
     };
 
 	/* ----- Backgound ---- */
-	init_enemy();
-	init();
-	init_player();
+	//init_enemy();
+	//init();
+	//init_player();
 	
+	var mouseX;
+	var mouseY;
+	var startM_width;
+	var lv_width;
+	var goodToGo;
+ 
+	canvas.addEventListener("mousemove", checkPos);
+  	canvas.addEventListener("mouseup", checkClick);
 
+  	function checkPos(mouseEvent){
+    mouseX = mouseEvent.pageX - this.offsetLeft;
+    mouseY = mouseEvent.pageY - this.offsetTop;
+	}
+
+	function checkClick(mouseEvent){
+		if((mouseX > 425 && mouseX < 425 + startM_width) || (mouseX < 425 && mouseX > 425 - startM_width)){
+			if(mouseY < 190 && mouseY > 165){
+				if (!goodToGo){
+					goodToGo = true
+				}else if(!game_trg){
+					alert("level 1");
+					lv1 = true;
+				}
+			}else if(mouseY < 270 && mouseY > 240 && !game_trg){
+				alert("level 2");
+				lv2 = true;
+
+			}else if(mouseY < 350 && mouseY > 315 && !game_trg){
+			 	alert("level 3");
+			 	lv3 = true;
+			}
+		}
+
+	}
+
+	var loading = 3000;
+
+	function menu(){
+
+		if (!goodToGo){
+			var logo = "Space Invaders"
+			var startM = "Start Game";
+			var instrM = "Instruction" 
+			mctx.clearRect(0, 0, WIDTH, HEIGHT);
+
+			mctx.font = 'italic 15pt Calibri';
+			var gradient = mctx.createLinearGradient(0,0,WIDTH,0);
+			gradient.addColorStop("0","magenta");
+			gradient.addColorStop("0.5","blue");
+			gradient.addColorStop("1.0","red");
+			mctx.fillStyle = gradient;
+			mctx.fillText(logo,WIDTH/2,20);
 		
+			// start option
+
+			var metrics = mctx.measureText(startM);
+      		startM_width = metrics.width;
+			
+			if((mouseX > 425 && mouseX < 425 + startM_width) || (mouseX < 425 && mouseX > 425 - startM_width)){
+				if(mouseY < 190 && mouseY > 165){
+					mctx.fillStyle = "red";
+				}else{
+					mctx.fillStyle = 'white';
+				}
+			}else{ 
+				mctx.fillStyle = 'white';
+        	}
+			mctx.font = 'italic 10pt Calibri';
+    		mctx.textAlign = 'center';
+      		mctx.fillText(startM, WIDTH/2, 50);
+
+      		// instruction
+
+      		// credit
+
+      		mctx.font = '10pt Calibri';
+      		mctx.textAlign = 'center';
+      		mctx.fillStyle = 'white';
+      		mctx.fillText('(' + startM_width + 'px wide);' + 'x:'+ mouseX + ' y:'+ mouseY, WIDTH/2, HEIGHT/2 + 40);
+      		
+      	}else if(!lv1 && !lv2 && !lv3){
+      		mctx.clearRect(0, 0, WIDTH, HEIGHT);
+
+      		mctx.font = 'italic 15pt Calibri';
+      		mctx.textAlign = 'center';
+			var gradient = mctx.createLinearGradient(0,0,WIDTH,0);
+			gradient.addColorStop("0","red");
+			gradient.addColorStop("0.5","green");
+			gradient.addColorStop("1.0","yellow");
+			mctx.fillStyle = gradient;
+			mctx.fillText("Game Level",WIDTH/2,20);
+
+			// levels print
+
+      		var lv = "Level x"
+
+      		var metrics = mctx.measureText(lv);
+      		lv_width = metrics.width;
+      		var lv1_on;
+			var lv2_on; 
+			var lv3_on;
+
+      		if((mouseX > 425 && mouseX < 425 + lv_width) || (mouseX < 425 && mouseX > 425 - lv_width)){
+				if(mouseY < 190 && mouseY > 160){
+					lv1_on = true;
+				}else if(mouseY < 270 && mouseY > 240){
+					lv2_on = true;
+				}else if(mouseY < 350 && mouseY > 315){
+					lv3_on = true;
+				}
+			}else{ 
+        	}
+
+        	mctx.font = 'italic 10pt Calibri';
+			
+			if (lv1_on){
+				mctx.fillStyle = "blue";
+				mctx.fillText("Level 1", WIDTH/2, 50);
+			}else{
+				mctx.fillStyle = "white";
+				mctx.fillText("Level 1", WIDTH/2, 50);
+			}
+
+			if (lv2_on){
+				mctx.fillStyle = "blue";
+				mctx.fillText("Level 2", WIDTH/2, 70);
+			}else{
+				mctx.fillStyle = "white";
+				mctx.fillText("Level 2", WIDTH/2, 70);
+			}
+
+			if (lv3_on){
+				mctx.fillStyle = "blue";
+				mctx.fillText("Level 3", WIDTH/2, 90);
+			}else{
+				mctx.fillStyle = "white";
+				mctx.fillText("Level 3", WIDTH/2, 90);
+			}
+
+      		mctx.font = '10pt Calibri';
+      		mctx.textAlign = 'center';
+      		mctx.fillStyle = 'white';
+      		mctx.fillText('(' + startM_width + 'px wide);' + 'x:'+ mouseX + ' y:'+ mouseY, WIDTH/2, HEIGHT/2 + 40);
+
+      	}else{
+      		mctx.clearRect(0, 0, WIDTH, HEIGHT);
+      		if (loading != 0){
+      			loading = loading - 30;
+      			mctx.font = '10pt Calibri';
+      			mctx.textAlign = 'center';
+      			mctx.fillStyle = 'white';
+      			if (loading > 3000){
+      				time = 4;
+      			}else if (loading > 2000){
+      				time = 3;
+      			}else if (loading > 1000){
+      				time = 2;
+      			}else{
+      				time = 1;
+      			}
+      			mctx.fillText("Loading... second:" + time, WIDTH/2, HEIGHT/2);
+
+      		}else{
+      			game_trg = true;
+      		}
+      	}
+	}
+
+	/* Start the setting and game */
+
+	init_enemy();
+	init_player();
+
+	init();
+
 </script>
 <p>bullet</p> <input id="b_x" type="text"> </input><input id="b_y" type="text"> </input><br />
 <p>enemy</p> <input id="e_x" type="text"> </input><input id="e_y" type="text"> </input><br />

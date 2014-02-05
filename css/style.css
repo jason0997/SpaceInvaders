@@ -13,10 +13,9 @@ body{
 }
 
 #socre_health_Canvas{
-	top:20px;
+	top:60px;
 	position:absolute;
 	margin-left:-850px;
-	background-color:red;
 }
 
 #background_Canvas{
@@ -28,3 +27,12 @@ body{
 	background-color:#000000;
 	z-index:-1;
 }
+
+#menu_Canvas{
+	width: 850px;
+	height: 580px;
+	margin-left:-850px;
+	top:70px;
+	z-index:-1;
+}
+
