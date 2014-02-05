@@ -66,11 +66,10 @@ function player_explosion(x, y, context){
 			   i=0;
 			   j+=64;
 			}
-		if(j == 256){
-			ctx.clearRect(x-2,y-10,20,20);
-			clearInterval(interval);
-		}
-
+			if(j == 256){
+				ctx.clearRect(x-2,y-10,20,20);
+				clearInterval(interval);
+			}
 		},100);
 		
 }
