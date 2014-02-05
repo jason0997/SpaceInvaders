@@ -14,6 +14,7 @@
 <canvas id="menu_Canvas"></canvas>
 <script>
    /* Initialize*/	
+    var level = 1.5;
 	var ctx = document.getElementById("myCanvas").getContext("2d");
 	var sctx = document.getElementById("socre_health_Canvas").getContext("2d");
 	var bctx = document.getElementById("background_Canvas").getContext("2d");
@@ -41,10 +42,9 @@
 	
 	var enemy_x=1;
 	var enemy_y=10;
-	var enemy_velocity_x = 0.4;
-	var enemy_velocity_y = 15;
-	var enemy_speed_x= 0.4;
-	
+	var enemy_velocity_x = 0.4 * level;
+	var enemy_velocity_y = 15;	
+	var enemy_speed_x= 0.4 * level;
 	var bullet_speed = 2;
 	
 	var score = 0;
@@ -52,8 +52,7 @@
 	var enemy_bullet_x;
 	var enemy_bullet_y;
 	var enemy_bullet_shot = false;
-	var enemy_bullet_speed = 1;
-	
+	var enemy_bullet_speed = 1 * level;
 	var health = 3;
 	
 	var mainInterval;
@@ -62,10 +61,7 @@
 	var menuInterval;
 	
 	var hit_x;
-	var hit_y;
-	
-	var show_x; 
-	var show_y;
+	var hit_y;	
 	var hit = false;
 	
 	var game_trg;
@@ -76,7 +72,6 @@
 	var lv3;
 
 	function init(){
-	//	ctx = document.getElementById("myCanvas").getContext("2d");
 		ctx = $('#myCanvas')[0].getContext('2d');
 		WIDTH = document.getElementsByTagName('canvas')[0].width;
 		HEIGHT = document.getElementsByTagName('canvas')[0].height;	
@@ -89,7 +84,8 @@
  	
  	/* Initialize*/
     var enemy_col = 5;
-	var enemy_row = 6;
+	var enemy_row = 4;
+   /* Initialize*/
 	var enemy_width=16;
 	var enemy_height=16;
 	var enemy_padding=1;
@@ -164,8 +160,8 @@
 			}
 
 		}else{
-
-		}
+				//Is there anything you need to put here?
+		}		
 
 	}
 	
@@ -284,8 +280,6 @@
 					}
 					else{
 						enemy_move((i*(enemy_width + enemy_padding)), (j*(enemy_height)), enemy_width, enemy_height);
-						show_x = i*(enemy_width + enemy_padding);						
-						show_y = j*(enemy_height);
 					}
 					if(enemy_col-1 == i && enemy_row-1 == j && enemy_matrix[i][j] == 0 && empty){
 						enemy_x = 0;
@@ -298,6 +292,7 @@
 								enemy_y = -5;
 						}
 						init_enemy();
+
 					}
 				}
 			}
@@ -357,36 +352,27 @@
 			sctx.fillText("lives: " + health, 700,50,250);
 			/* ----Socre and health --- */
 		
-			/* ----Player die-----*/ 
-			var down_side = get_down_side(enemy_matrix, enemy_col, enemy_row);
-			var left = get_down_side_left(enemy_matrix, enemy_col, down_side);
-			var right = get_down_side_right(enemy_matrix, enemy_col, down_side);
-			var down_right = enemy_x + (right - 1) * enemy_padding + right * enemy_width; 
-			var down_left = enemy_x + (left - 1) * (enemy_width)
-			var down_height = enemy_y + down_side * enemy_height ;
+		/* ----Player die-----*/ 
+		var down_side = get_down_side(enemy_matrix, enemy_col, enemy_row);
+		var left = get_down_side_left(enemy_matrix, enemy_col, down_side);
+		var right = get_down_side_right(enemy_matrix, enemy_col, down_side);
+		var down_right = enemy_x + (right - 1) * enemy_padding + right * enemy_width; 
+		var down_left = enemy_x + (left - 1) * (enemy_width)
+		var down_height = enemy_y + down_side * enemy_height ;
+		if(down_height > player_y && (down_left < player_x && down_right > player_x)){
+			alert("YOU FINAL SCORE IS: " + score);
+			location.reload();
+		}				
 		
 			if(down_height >= player_y && (down_left <= player_x && down_right >= player_x)){
-				//alert("YOU FINAL SCORE IS: " + score);
-				//location.reload();
 				game_over = true
 			}else if(health <=0){
 				game_over = true
 			}				
-		
-			/*
-			if(health <=0){
-				alert("YOU FINAL SCORE IS: " + score);
-				location.reload();
-			}
-			*/
-		
 			/* ----Player die-----*/
+
 		
 			enemy_x += enemy_velocity_x;
-			document.getElementById("b_x").value=enemy_y;
-			document.getElementById("b_y").value=show_y;
-			document.getElementById("e_x").value=hit_x;
-			document.getElementById("e_y").value=hit_y;
 			}else if (game_over){
 				clear();
 				ctx.font = '10pt Calibri';
@@ -396,7 +382,7 @@
     	  		ctx.fillText("Your Final Score: " + score, WIDTH/2, HEIGHT/2 + 20)
 
 			}else{
-
+					//Is there anything you want to put here
 			}
 		}
 
@@ -458,9 +444,7 @@
     };
 
 	/* ----- Backgound ---- */
-	//init_enemy();
-	//init();
-	//init_player();
+
 	
 	var mouseX;
 	var mouseY;
@@ -638,8 +622,6 @@
 	init();
 
 </script>
-<p>bullet</p> <input id="b_x" type="text"> </input><input id="b_y" type="text"> </input><br />
-<p>enemy</p> <input id="e_x" type="text"> </input><input id="e_y" type="text"> </input><br />
 
 </body>
 </html>
