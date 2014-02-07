@@ -6,31 +6,23 @@ body{
 	width:850px;
 	margin-left:auto;
 	margin-right:auto;
-	text-align:center;
 }
+
 #myCanvas{
 	width:850px;
 	height:580px;
-	margin-left:0px;
 	z-index:1;
 	background-color:rgba(0,0,0,0.1);
 }
 
 #socre_health_Canvas{
-	margin-top:30px;
 	position:absolute;
-	top:10px;
-	margin-left:-850px;
 	background-color:rgba(0,0,0,0.1);
-	z-index:1;
+	z-index:2;
 }
 
 #background_Canvas{
-	width:850px;
-	height:630px;
 	position:absolute;
-	top:20px;
-	margin-left:-425px;
 	background-color:#000000;
 	z-index:-1;
 }
@@ -39,7 +31,6 @@ body{
 	position:absolute;
 	width: 850px;
 	height: 580px;
-	margin-left:0px;
 	top:100px;
 	z-index:1;
 }
