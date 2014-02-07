@@ -1,4 +1,6 @@
 // JavaScript Document
+
+//
 function get_right_side(matrix, row , col){
 	for(i = row-1; i>=0; i--){
 		for(j = 0; j< col; j++){
